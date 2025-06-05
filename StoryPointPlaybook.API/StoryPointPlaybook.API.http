@@ -1,0 +1,6 @@
+@StoryPointPlaybook.API_HostAddress = http://localhost:5027
+
+GET {{StoryPointPlaybook.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

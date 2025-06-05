@@ -1,4 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using StoryPointPlaybook.Api.Hubs;
+using StoryPointPlaybook.API.SignalR;
+using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
+using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Infrastructure.Data;
 using StoryPointPlaybook.Infrastructure.Repositories;
@@ -21,6 +25,12 @@ builder.Services.AddScoped<IStoryRepository, StoryRepository>();
 builder.Services.AddScoped<IVoteRepository, VoteRepository>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(CreateRoomCommand).Assembly));
+
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IGameHubNotifier, GameHubNotifier>();
+
 
 var app = builder.Build();
 
@@ -38,3 +48,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+app.MapHub<GameHub>("/gamehub");
+app.MapHub<ChatHub>("/chathub");

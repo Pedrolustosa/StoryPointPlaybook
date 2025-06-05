@@ -9,12 +9,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.16" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.16" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+    <Folder Include="Configurations\" />
+    <Folder Include="Middlewares\" />
+    <Folder Include="Hubs\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StoryPointPlaybook.Application\StoryPointPlaybook.Application.csproj" />
+    <ProjectReference Include="..\StoryPointPlaybook.Domain\StoryPointPlaybook.Domain.csproj" />
+    <ProjectReference Include="..\StoryPointPlaybook.Infra.IoC\StoryPointPlaybook.Infra.IoC.csproj" />
+    <ProjectReference Include="..\StoryPointPlaybook.Infrastructure\StoryPointPlaybook.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

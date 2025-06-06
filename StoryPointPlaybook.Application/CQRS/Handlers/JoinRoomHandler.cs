@@ -4,7 +4,7 @@ using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 
-namespace StoryPointPlaybook.Application.CQRS.Rooms.Handlers;
+namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
 public class JoinRoomHandler : IRequestHandler<JoinRoomCommand, UserDto>
 {
@@ -29,7 +29,7 @@ public class JoinRoomHandler : IRequestHandler<JoinRoomCommand, UserDto>
         return new UserDto
         {
             Id = user.Id,
-            DisplayName = user.DisplayName,
+            Name = user.Name,
             Role = user.Role,
             RoomId = user.RoomId
         };

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StoryPointPlaybook.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using StoryPointPlaybook.Infrastructure.Data;
 namespace StoryPointPlaybook.Infrastructure.Migrations
 {
     [DbContext(typeof(PlanningPokerContext))]
-    partial class PlanningPokerContextModelSnapshot : ModelSnapshot
+    [Migration("20250605230325_InitialCreate_II")]
+    partial class InitialCreate_II
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,7 +143,7 @@ namespace StoryPointPlaybook.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");

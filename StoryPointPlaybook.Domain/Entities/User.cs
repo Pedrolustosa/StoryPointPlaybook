@@ -3,7 +3,7 @@
 public class User
 {
     public Guid Id { get; private set; }
-    public string DisplayName { get; private set; }
+    public string Name { get; private set; }
     public string Role { get; private set; }
     public Guid RoomId { get; private set; }
     public Room Room { get; private set; }
@@ -11,10 +11,10 @@ public class User
 
     protected User() { }
 
-    public User(string displayName, string role, Guid roomId)
+    public User(string name, string role, Guid roomId)
     {
         Id = Guid.NewGuid();
-        DisplayName = displayName;
+        Name = name;
         Role = role;
         RoomId = roomId;
     }

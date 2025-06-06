@@ -30,4 +30,12 @@ public class UserRepository : IUserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<User>> GetByRoomIdAsync(Guid roomId)
+    {
+        return await _context.Users
+            .Where(u => u.RoomId == roomId)
+            .ToListAsync();
+    }
+
 }

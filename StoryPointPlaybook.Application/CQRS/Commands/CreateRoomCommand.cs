@@ -4,4 +4,11 @@ using StoryPointPlaybook.Domain.Enums;
 
 namespace StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 
-public record CreateRoomCommand(string Name, VotingScale Scale, int TimeLimit, bool AutoReveal) : IRequest<RoomDto>;
+public class CreateRoomCommand : IRequest<RoomResponse>
+{
+    public string Name { get; set; } = null!;
+    public string CreatedBy { get; set; } = null!;
+    public VotingScale Scale { get; set; }
+    public int TimeLimit { get; set; }
+    public bool AutoReveal { get; set; }
+}

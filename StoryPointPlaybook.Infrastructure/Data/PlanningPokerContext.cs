@@ -13,6 +13,8 @@ public class PlanningPokerContext : DbContext
     public DbSet<Story> Stories => Set<Story>();
     public DbSet<Vote> Votes => Set<Vote>();
     public DbSet<Session> Sessions => Set<Session>();
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

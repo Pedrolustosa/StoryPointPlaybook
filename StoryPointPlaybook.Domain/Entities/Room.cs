@@ -12,6 +12,7 @@ public class Room
     public bool AutoReveal { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public bool IsClosed { get; private set; }
+    public Guid? CurrentStoryId { get; private set; }
 
     public ICollection<User> Participants { get; private set; } = new List<User>();
     public ICollection<Story> Stories { get; private set; } = new List<Story>();
@@ -33,6 +34,11 @@ public class Room
     private string GenerateRoomCode()
     {
         return Guid.NewGuid().ToString("N")[..6].ToUpper();
+    }
+
+    public void SetCurrentStory(Guid storyId)
+    {
+        CurrentStoryId = storyId;
     }
 
     public void CloseRoom() => IsClosed = true;

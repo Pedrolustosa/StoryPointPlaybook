@@ -11,6 +11,7 @@ public static class Messages
         public const string VoteSubmitted = "Voto registrado com sucesso.";
         public const string VotesRevealed = "Votos revelados com sucesso.";
         public const string ParticipantsRetrieved = "Participantes recuperados com sucesso.";
+        public const string CurrentStorySelected = "História definida para votação com sucesso.";
     }
 
     public static class Error
@@ -19,5 +20,6 @@ public static class Messages
         public const string RoomNotFound = "Sala não encontrada.";
         public const string UserNotFound = "Usuário não encontrado.";
         public const string StoryNotFound = "História não encontrada.";
+        public const string CurrentStoryNotFound = "História não encontrada ou não pertence à sala.";
     }
 }

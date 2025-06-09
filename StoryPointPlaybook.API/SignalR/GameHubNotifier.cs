@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using StoryPointPlaybook.Api.Hubs;
+using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Application.Interfaces;
 
 namespace StoryPointPlaybook.API.SignalR
@@ -29,6 +30,16 @@ namespace StoryPointPlaybook.API.SignalR
         {
             await _hub.Clients.Group(roomId.ToString())
                 .SendAsync("StoryUpdated", storyDto);
+        }
+
+        public async Task NotifyStoryAdded(string roomCode, StoryResponse storyDto)
+        {
+            await _hub.Clients.Group(roomCode)
+                .SendAsync("StoryAdded", storyDto);
+        }
+        public async Task NotifyCurrentStoryChanged(string roomCode, StoryResponse storyDto)
+        {
+            await _hub.Clients.Group(roomCode).SendAsync("CurrentStoryChanged", storyDto);
         }
     }
 }

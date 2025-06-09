@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Application.Interfaces;
+using StoryPointPlaybook.Domain.Interfaces;
+using StoryPointPlaybook.Infrastructure.Repositories;
 
 namespace StoryPointPlaybook.Api.Hubs;
 
@@ -7,11 +10,13 @@ public class GameHub : Hub
 {
     private readonly ILogger<GameHub> _logger;
     private readonly IConnectedUserTracker _tracker;
+    private readonly IStoryRepository _storyRepository;
 
-    public GameHub(ILogger<GameHub> logger, IConnectedUserTracker tracker)
+    public GameHub(ILogger<GameHub> logger, IConnectedUserTracker tracker, IStoryRepository storyRepository)
     {
         _logger = logger;
         _tracker = tracker;
+        _storyRepository = storyRepository;
     }
 
     public async Task JoinRoom(string roomCode, Guid roomId, string userId)
@@ -25,6 +30,15 @@ public class GameHub : Hub
 
         var count = _tracker.GetParticipantCount(roomId);
         await Clients.Group(roomCode).SendAsync("ParticipantCountUpdated", count);
+
+        var stories = await _storyRepository.GetByRoomIdAsync(roomId);
+        var storyDtos = stories.Select(s => new StoryResponse
+        {
+            Id = s.Id,
+            Title = s.Title,
+            Description = s.Description
+        });
+        await Clients.Caller.SendAsync("StoriesInitialized", storyDtos);
     }
 
     public async Task LeaveRoom(string roomCode, Guid roomId, string userId)

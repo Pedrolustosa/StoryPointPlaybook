@@ -1,24 +1,23 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StoryPointPlaybook.API.Common;
 using StoryPointPlaybook.Application.CQRS.Stories.Commands;
 
-namespace StoryPointPlaybook.API.Controllers
+namespace StoryPointPlaybook.API.Controllers;
+
+[ApiController]
+[Route("api/rooms/{roomId}/stories")]
+public class StoriesController(IMediator mediator, ILogger<StoriesController> logger) : ControllerBase
 {
-    [ApiController]
-    [Route("api/rooms/{roomId}/stories")]
-    public class StoriesController : ControllerBase
-    {
-        private readonly IMediator _mediator;
+    private readonly IMediator _mediator = mediator;
+    private readonly ILogger<StoriesController> _logger = logger;
 
-        public StoriesController(IMediator mediator) => _mediator = mediator;
-
-        [HttpPost]
-        public async Task<IActionResult> AddStory(Guid roomId, [FromBody] AddStoryCommand command)
+    [HttpPost]
+    public async Task<IActionResult> AddStory(Guid roomId, [FromBody] AddStoryCommand command)
+        => await ControllerHelper.ExecuteAsync(async () =>
         {
             var cmd = command with { RoomId = roomId };
             var result = await _mediator.Send(cmd);
-            return Ok(result);
-        }
-    }
-
+            return result;
+        }, _logger, this, Messages.Success.StoryAdded);
 }

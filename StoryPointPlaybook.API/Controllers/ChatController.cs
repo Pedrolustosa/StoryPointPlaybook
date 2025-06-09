@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using StoryPointPlaybook.API.Common;
 using StoryPointPlaybook.Application.CQRS.Commands;
 using StoryPointPlaybook.Application.CQRS.Queries;
 using StoryPointPlaybook.Application.DTOs;
@@ -8,24 +10,24 @@ namespace StoryPointPlaybook.API.Controllers;
 
 [ApiController]
 [Route("api/rooms/{roomId}/chat")]
-public class ChatController : ControllerBase
+public class ChatController(IMediator mediator, ILogger<ChatController> logger) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public ChatController(IMediator mediator) => _mediator = mediator;
+    private readonly IMediator _mediator = mediator;
+    private readonly ILogger<ChatController> _logger = logger;
 
     [HttpPost]
-    public async Task<IActionResult> SendMessage([FromRoute] Guid roomId, [FromBody] SendMessageRequest request)
-    {
-        var command = new SendMessageCommand(roomId, request.UserName, request.Message);
-        await _mediator.Send(command);
-        return Ok();
-    }
+    public async Task<IActionResult> SendMessage(Guid roomId, [FromBody] SendMessageRequest request)
+        => await ControllerHelper.ExecuteAsync(async () =>
+        {
+            var command = new SendMessageCommand(roomId, request.UserName, request.Message);
+            await _mediator.Send(command);
+        }, _logger, this, Messages.Success.MessageSent);
 
     [HttpGet]
-    public async Task<IActionResult> GetMessages([FromRoute] Guid roomId)
-    {
-        var result = await _mediator.Send(new GetChatHistoryQuery(roomId));
-        return Ok(result);
-    }
+    public async Task<IActionResult> GetMessages(Guid roomId)
+        => await ControllerHelper.ExecuteAsync(async () =>
+        {
+            var result = await _mediator.Send(new GetChatHistoryQuery(roomId));
+            return result;
+        }, _logger, this);
 }

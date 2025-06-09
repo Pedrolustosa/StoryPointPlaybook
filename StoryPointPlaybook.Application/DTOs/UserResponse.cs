@@ -12,6 +12,4 @@ namespace StoryPointPlaybook.Application.DTOs
         public string Name { get; set; } = null!;
         public string Role { get; set; } = null!;
     }
-
-
 }

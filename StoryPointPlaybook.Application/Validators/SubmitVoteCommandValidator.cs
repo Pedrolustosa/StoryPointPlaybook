@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using StoryPointPlaybook.Application.CQRS.Stories.Commands;
+using StoryPointPlaybook.Application.CQRS.Commands;
 
 namespace StoryPointPlaybook.Application.Validators.Stories;
 

@@ -1,5 +1,5 @@
 ﻿using MediatR;
 
-namespace StoryPointPlaybook.Application.CQRS.Stories.Commands;
+namespace StoryPointPlaybook.Application.CQRS.Commands;
 
-public record SubmitVoteCommand(Guid StoryId, Guid UserId, string Value) : IRequest<Unit>;
+public record SubmitVoteCommand(Guid StoryId, Guid UserId, string Value) : IRequest;

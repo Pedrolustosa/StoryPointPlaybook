@@ -47,4 +47,14 @@ public class StoryRepository : IStoryRepository
         _context.Stories.Remove(story);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<Story?> GetByIdWithRoomAsync(Guid storyId)
+    {
+        return await _context.Stories
+            .Include(s => s.Room)
+                .ThenInclude(r => r.Participants)
+            .Include(s => s.Votes)
+            .FirstOrDefaultAsync(s => s.Id == storyId);
+    }
+
 }

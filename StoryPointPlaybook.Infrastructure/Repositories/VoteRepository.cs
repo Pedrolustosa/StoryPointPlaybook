@@ -33,4 +33,11 @@ public class VoteRepository : IVoteRepository
         await _context.Votes.AddAsync(vote);
         await _context.SaveChangesAsync();
     }
+
+    public async Task UpdateAsync(Vote vote)
+    {
+        _context.Votes.Update(vote);
+        await _context.SaveChangesAsync();
+    }
+
 }

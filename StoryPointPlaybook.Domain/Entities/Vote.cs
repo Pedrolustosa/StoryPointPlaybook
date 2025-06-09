@@ -18,5 +18,9 @@ public class Vote
         UserId = userId;
         Value = value;
     }
-}
 
+    public void SetValue(string value)
+    {
+        Value = value;
+    }
+}

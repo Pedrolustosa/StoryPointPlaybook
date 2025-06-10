@@ -5,6 +5,8 @@ using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Domain.Interfaces;
 
+namespace StoryPointPlaybook.Application.CQRS.Handlers;
+
 public class AddStoryHandler : IRequestHandler<AddStoryCommand, StoryResponse>
 {
     private readonly IStoryRepository _storyRepository;

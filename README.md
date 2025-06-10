@@ -83,6 +83,7 @@ The API exposes several endpoints for interacting with the system:
 - `/api/stories`: Story creation, retrieval, and estimation workflows
 - `/api/votes`: Individual and group voting operations
 - `/api/chat`: Chat message operations for team communication
+- `/health`: Basic health check endpoint for monitoring
 
 All API endpoints are documented using Swagger/OpenAPI available at `/swagger` when running in development mode.
 

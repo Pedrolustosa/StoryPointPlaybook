@@ -78,6 +78,8 @@ builder.Services.AddOptionsWithValidateOnStart<CreateRoomCommand>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<PlanningPokerContext>();
 
 #endregion
 
@@ -139,6 +141,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<GameHub>("/gamehub");
 app.MapHub<ChatHub>("/chathub");
+app.MapHealthChecks("/health");
 
 #endregion
 

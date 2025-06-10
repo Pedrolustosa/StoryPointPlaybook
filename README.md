@@ -1,5 +1,13 @@
 # StoryPointPlaybook
 
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge)]()
+[![NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet)]()
+[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge)](LICENSE.txt)
+[![Status](https://img.shields.io/badge/status-active-success.svg?style=for-the-badge)]()
+[![SignalR](https://img.shields.io/badge/SignalR-Real--time-orange?style=for-the-badge)]()
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Pedro%20Lustosa-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/pedrolustosadev/)
+
+
 ## Overview
 StoryPointPlaybook is a modern, real-time Planning Poker application designed for agile teams to efficiently estimate story points. It facilitates remote estimation sessions with features like real-time voting, chat, and automatic vote reveal. Teams can collaborate in real-time regardless of their physical location, making it ideal for distributed agile teams.
 

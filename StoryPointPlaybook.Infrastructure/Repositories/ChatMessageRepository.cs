@@ -5,14 +5,9 @@ using StoryPointPlaybook.Infrastructure.Data;
 
 namespace StoryPointPlaybook.Infrastructure.Repositories;
 
-public class ChatMessageRepository : IChatMessageRepository
+public class ChatMessageRepository(PlanningPokerContext context) : IChatMessageRepository
 {
-    private readonly PlanningPokerContext _context;
-
-    public ChatMessageRepository(PlanningPokerContext context)
-    {
-        _context = context;
-    }
+    private readonly PlanningPokerContext _context = context;
 
     public async Task AddAsync(ChatMessage message)
     {

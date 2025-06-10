@@ -1,18 +1,19 @@
-﻿using FluentValidation;
+﻿using Serilog;
 using MediatR;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
+using FluentValidation;
 using StoryPointPlaybook.Api.Hubs;
+using StoryPointPlaybook.API.Hubs;
+using System.Threading.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using StoryPointPlaybook.API.SignalR;
-using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
-using StoryPointPlaybook.Application.Interfaces;
-using StoryPointPlaybook.Application.Services;
-using StoryPointPlaybook.Application.Validators;
+using Microsoft.AspNetCore.Diagnostics;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Infrastructure.Data;
+using StoryPointPlaybook.Application.Services;
+using StoryPointPlaybook.Application.Interfaces;
+using StoryPointPlaybook.Application.Validators;
 using StoryPointPlaybook.Infrastructure.Repositories;
-using System.Threading.RateLimiting;
+using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,6 +102,7 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 app.UseCors("AllowLocalhost");
+
 #region Middleware de tratamento de exceções
 app.UseExceptionHandler(config =>
 {

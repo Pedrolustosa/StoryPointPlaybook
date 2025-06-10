@@ -5,14 +5,9 @@ using StoryPointPlaybook.Infrastructure.Data;
 
 namespace StoryPointPlaybook.Infrastructure.Repositories;
 
-public class VoteRepository : IVoteRepository
+public class VoteRepository(PlanningPokerContext context) : IVoteRepository
 {
-    private readonly PlanningPokerContext _context;
-
-    public VoteRepository(PlanningPokerContext context)
-    {
-        _context = context;
-    }
+    private readonly PlanningPokerContext _context = context;
 
     public async Task<List<Vote>> GetByStoryIdAsync(Guid storyId)
     {
@@ -39,5 +34,4 @@ public class VoteRepository : IVoteRepository
         _context.Votes.Update(vote);
         await _context.SaveChangesAsync();
     }
-
 }

@@ -1,25 +1,17 @@
 ﻿using MediatR;
 using StoryPointPlaybook.Domain.Entities;
-using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.DTOs;
+using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class CreateRoomHandler : IRequestHandler<CreateRoomCommand, RoomResponse>
+public class CreateRoomHandler(IRoomRepository roomRepo) : IRequestHandler<CreateRoomCommand, RoomResponse>
 {
-    private readonly IRoomRepository _roomRepo;
-    private readonly IUserRepository _userRepo;
-
-    public CreateRoomHandler(IRoomRepository roomRepo, IUserRepository userRepo)
-    {
-        _roomRepo = roomRepo;
-        _userRepo = userRepo;
-    }
+    private readonly IRoomRepository _roomRepo = roomRepo;
 
     public async Task<RoomResponse> Handle(CreateRoomCommand request, CancellationToken cancellationToken)
     {
-        // Criar sala
         var room = new Room(
             name: request.Name,
             scale: request.Scale,
@@ -27,18 +19,15 @@ public class CreateRoomHandler : IRequestHandler<CreateRoomCommand, RoomResponse
             autoReveal: request.AutoReveal
         );
 
-        // Criar usuário PO
         var user = new User(
             name: request.CreatedBy,
             role: "Moderator",
             roomId: room.Id
         );
 
-        // Adiciona o PO aos participantes da sala
         room.Participants.Add(user);
 
-        // Persiste ambos (EF salva User pela navegação)
-        await _roomRepo.AddAsync(room); // SaveChanges incluirá o user via relacionamento
+        await _roomRepo.AddAsync(room);
 
         return new RoomResponse
         {
@@ -54,15 +43,14 @@ public class CreateRoomHandler : IRequestHandler<CreateRoomCommand, RoomResponse
                 Name = user.Name,
                 Role = user.Role
             },
-            Participants = new List<UserResponse>
-            {
-                new UserResponse
-                {
+            Participants =
+            [
+                new() {
                     Id = user.Id,
                     Name = user.Name,
                     Role = user.Role
                 }
-            }
+            ]
         };
     }
 }

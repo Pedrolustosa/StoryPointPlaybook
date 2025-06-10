@@ -1,12 +1,12 @@
-using FluentAssertions;
 using Moq;
+using FluentAssertions;
+using StoryPointPlaybook.Domain.Enums;
+using StoryPointPlaybook.Domain.Entities;
+using StoryPointPlaybook.Application.DTOs;
+using StoryPointPlaybook.Domain.Interfaces;
+using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Handlers;
 using StoryPointPlaybook.Application.CQRS.Stories.Commands;
-using StoryPointPlaybook.Application.DTOs;
-using StoryPointPlaybook.Application.Interfaces;
-using StoryPointPlaybook.Domain.Entities;
-using StoryPointPlaybook.Domain.Enums;
-using StoryPointPlaybook.Domain.Interfaces;
 
 namespace StoryPointPlaybook.Tests.Unit.Application;
 
@@ -17,10 +17,7 @@ public class AddStoryHandlerTests
     private readonly Mock<IGameHubNotifier> _hubMock = new();
     private readonly AddStoryHandler _handler;
 
-    public AddStoryHandlerTests()
-    {
-        _handler = new AddStoryHandler(_storyRepoMock.Object, _roomRepoMock.Object, _hubMock.Object);
-    }
+    public AddStoryHandlerTests() => _handler = new AddStoryHandler(_storyRepoMock.Object, _roomRepoMock.Object, _hubMock.Object);
 
     [Fact]
     public async Task Handle_RoomNotFound_ThrowsException()

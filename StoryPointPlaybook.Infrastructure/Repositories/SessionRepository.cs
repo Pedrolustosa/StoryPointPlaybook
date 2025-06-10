@@ -5,14 +5,9 @@ using StoryPointPlaybook.Infrastructure.Data;
 
 namespace StoryPointPlaybook.Infrastructure.Repositories;
 
-public class SessionRepository : ISessionRepository
+public class SessionRepository(PlanningPokerContext context) : ISessionRepository
 {
-    private readonly PlanningPokerContext _context;
-
-    public SessionRepository(PlanningPokerContext context)
-    {
-        _context = context;
-    }
+    private readonly PlanningPokerContext _context = context;
 
     public async Task<Session?> GetByIdAsync(Guid id)
     {

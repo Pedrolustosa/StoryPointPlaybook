@@ -1,24 +1,17 @@
 ﻿using MediatR;
-using StoryPointPlaybook.Application.CQRS.Stories.Commands;
-using StoryPointPlaybook.Application.DTOs;
-using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Domain.Entities;
+using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
+using StoryPointPlaybook.Application.Interfaces;
+using StoryPointPlaybook.Application.CQRS.Stories.Commands;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class AddStoryHandler : IRequestHandler<AddStoryCommand, StoryResponse>
+public class AddStoryHandler(IStoryRepository storyRepository, IRoomRepository roomRepository, IGameHubNotifier hubNotifier) : IRequestHandler<AddStoryCommand, StoryResponse>
 {
-    private readonly IStoryRepository _storyRepository;
-    private readonly IRoomRepository _roomRepository;
-    private readonly IGameHubNotifier _hubNotifier;
-
-    public AddStoryHandler(IStoryRepository storyRepository, IRoomRepository roomRepository,IGameHubNotifier hubNotifier)
-    {
-        _storyRepository = storyRepository;
-        _hubNotifier = hubNotifier;
-        _roomRepository = roomRepository;
-    }
+    private readonly IStoryRepository _storyRepository = storyRepository;
+    private readonly IRoomRepository _roomRepository = roomRepository;
+    private readonly IGameHubNotifier _hubNotifier = hubNotifier;
 
     public async Task<StoryResponse> Handle(AddStoryCommand request, CancellationToken cancellationToken)
     {
@@ -32,10 +25,7 @@ public class AddStoryHandler : IRequestHandler<AddStoryCommand, StoryResponse>
             Description = story.Description
         };
 
-        var room = await _roomRepository.GetByIdAsync(request.RoomId);
-        if (room == null)
-            throw new Exception("Sala não encontrada");
-
+        var room = await _roomRepository.GetByIdAsync(request.RoomId)??throw new Exception("Sala não encontrada");
         await _hubNotifier.NotifyStoryAdded(room.Code, response);
         return response;
     }

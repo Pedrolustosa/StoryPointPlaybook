@@ -1,41 +1,27 @@
 ﻿using MediatR;
-using StoryPointPlaybook.Application.Common;
-using StoryPointPlaybook.Application.CQRS.Commands;
-using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Domain.Interfaces;
+using StoryPointPlaybook.Application.Common;
+using StoryPointPlaybook.Application.Interfaces;
+using StoryPointPlaybook.Application.CQRS.Commands;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class SubmitVoteHandler : IRequestHandler<SubmitVoteCommand>
+public class SubmitVoteHandler(
+    IStoryRepository storyRepo,
+    IUserRepository userRepo,
+    IVoteRepository voteRepo,
+    IGameHubNotifier notifier) : IRequestHandler<SubmitVoteCommand>
 {
-    private readonly IStoryRepository _storyRepo;
-    private readonly IUserRepository _userRepo;
-    private readonly IVoteRepository _voteRepo;
-    private readonly IGameHubNotifier _notifier;
-
-    public SubmitVoteHandler(
-        IStoryRepository storyRepo,
-        IUserRepository userRepo,
-        IVoteRepository voteRepo,
-        IGameHubNotifier notifier)
-    {
-        _storyRepo = storyRepo;
-        _userRepo = userRepo;
-        _voteRepo = voteRepo;
-        _notifier = notifier;
-    }
+    private readonly IStoryRepository _storyRepo = storyRepo;
+    private readonly IUserRepository _userRepo = userRepo;
+    private readonly IVoteRepository _voteRepo = voteRepo;
+    private readonly IGameHubNotifier _notifier = notifier;
 
     public async Task Handle(SubmitVoteCommand request, CancellationToken cancellationToken)
     {
-        var story = await _storyRepo.GetByIdWithRoomAsync(request.StoryId);
-        if (story == null)
-            throw new Exception(ApplicationErrors.StoryNotFound);
-
-        var user = await _userRepo.GetByIdAsync(request.UserId);
-        if (user == null)
-            throw new Exception(ApplicationErrors.UserNotFound);
-
+        var story = await _storyRepo.GetByIdWithRoomAsync(request.StoryId)??throw new Exception(ApplicationErrors.StoryNotFound);
+        var user = await _userRepo.GetByIdAsync(request.UserId)??throw new Exception(ApplicationErrors.UserNotFound);
         var existingVote = story.Votes.FirstOrDefault(v => v.UserId == user.Id);
         if (existingVote != null)
         {

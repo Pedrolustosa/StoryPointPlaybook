@@ -1,10 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using StoryPointPlaybook.API.Common;
-using StoryPointPlaybook.Application.CQRS.Commands;
-using StoryPointPlaybook.Application.CQRS.Queries;
 using StoryPointPlaybook.Application.DTOs;
+using StoryPointPlaybook.Application.CQRS.Queries;
+using StoryPointPlaybook.Application.CQRS.Commands;
 
 namespace StoryPointPlaybook.API.Controllers;
 

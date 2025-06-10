@@ -1,21 +1,15 @@
 ﻿using MediatR;
 using StoryPointPlaybook.Domain.Entities;
-using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.DTOs;
+using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class JoinRoomHandler : IRequestHandler<JoinRoomCommand, UserDto>
+public class JoinRoomHandler(IRoomRepository roomRepository, IUserRepository userRepository) : IRequestHandler<JoinRoomCommand, UserDto>
 {
-    private readonly IRoomRepository _roomRepository;
-    private readonly IUserRepository _userRepository;
-
-    public JoinRoomHandler(IRoomRepository roomRepository, IUserRepository userRepository)
-    {
-        _roomRepository = roomRepository;
-        _userRepository = userRepository;
-    }
+    private readonly IRoomRepository _roomRepository = roomRepository;
+    private readonly IUserRepository _userRepository = userRepository;
 
     public async Task<UserDto> Handle(JoinRoomCommand request, CancellationToken cancellationToken)
     {

@@ -5,14 +5,9 @@ using StoryPointPlaybook.Infrastructure.Data;
 
 namespace StoryPointPlaybook.Infrastructure.Repositories;
 
-public class StoryRepository : IStoryRepository
+public class StoryRepository(PlanningPokerContext context) : IStoryRepository
 {
-    private readonly PlanningPokerContext _context;
-
-    public StoryRepository(PlanningPokerContext context)
-    {
-        _context = context;
-    }
+    private readonly PlanningPokerContext _context = context;
 
     public async Task<Story?> GetByIdAsync(Guid id)
     {
@@ -56,5 +51,4 @@ public class StoryRepository : IStoryRepository
             .Include(s => s.Votes)
             .FirstOrDefaultAsync(s => s.Id == storyId);
     }
-
 }

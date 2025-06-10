@@ -1,51 +1,43 @@
 ﻿using MediatR;
+using StoryPointPlaybook.Application.CQRS.Queries;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
 
-namespace StoryPointPlaybook.Application.CQRS.Handlers
+namespace StoryPointPlaybook.Application.CQRS.Handlers;
+
+public class ExportRoomResultHandler(IRoomRepository roomRepo) : IRequestHandler<ExportRoomResultQuery, ExportResultDto>
 {
-    public class ExportRoomResultHandler : IRequestHandler<ExportRoomResultQuery, ExportResultDto>
+    private readonly IRoomRepository _roomRepo = roomRepo;
+
+    public async Task<ExportResultDto> Handle(ExportRoomResultQuery request, CancellationToken cancellationToken)
     {
-        private readonly IRoomRepository _roomRepo;
-
-        public ExportRoomResultHandler(IRoomRepository roomRepo)
+        var room = await _roomRepo.GetByIdAsync(request.RoomId)??throw new InvalidOperationException("Sala não encontrada.");
+        var stories = room.Stories.Select(story =>
         {
-            _roomRepo = roomRepo;
-        }
+            var voteValues = story.Votes.Select(v => v.Value).ToList();
 
-        public async Task<ExportResultDto> Handle(ExportRoomResultQuery request, CancellationToken cancellationToken)
-        {
-            var room = await _roomRepo.GetByIdAsync(request.RoomId);
-            if (room == null)
-                throw new InvalidOperationException("Sala não encontrada.");
+            var avg = voteValues.All(v => double.TryParse(v, out _))
+                ? voteValues.Select(v => double.Parse(v)).Average().ToString("0.0")
+                : "-";
 
-            var stories = room.Stories.Select(story =>
+            return new ExportedStoryDto
             {
-                var voteValues = story.Votes.Select(v => v.Value).ToList();
-
-                var avg = voteValues.All(v => double.TryParse(v, out _))
-                    ? voteValues.Select(v => double.Parse(v)).Average().ToString("0.0")
-                    : "-";
-
-                return new ExportedStoryDto
+                Title = story.Title,
+                Description = story.Description,
+                Votes = [.. story.Votes.Select(v => new VoteEntryDto
                 {
-                    Title = story.Title,
-                    Description = story.Description,
-                    Votes = story.Votes.Select(v => new VoteEntryDto
-                    {
-                        User = v.User.Name,
-                        Value = v.Value
-                    }).ToList(),
-                    Average = avg
-                };
-            }).ToList();
-
-            return new ExportResultDto
-            {
-                RoomCode = room.Code,
-                RoomName = room.Name,
-                Stories = stories
+                    User = v.User.Name,
+                    Value = v.Value
+                })],
+                Average = avg
             };
-        }
+        }).ToList();
+
+        return new ExportResultDto
+        {
+            RoomCode = room.Code,
+            RoomName = room.Name,
+            Stories = stories
+        };
     }
 }

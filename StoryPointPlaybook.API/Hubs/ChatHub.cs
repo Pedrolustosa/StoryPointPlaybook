@@ -1,23 +1,17 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.SignalR;
-using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Domain.Interfaces;
+using StoryPointPlaybook.Application.Interfaces;
 
-public class ChatHub : Hub
+namespace StoryPointPlaybook.API.Hubs;
+
+public class ChatHub(ILogger<ChatHub> logger, IChatMessageRepository chatRepo, IValidator<(string, string)> validator, IRateLimitService rateLimit) : Hub
 {
-    private readonly ILogger<ChatHub> _logger;
-    private readonly IChatMessageRepository _chatRepo;
-    private readonly IValidator<(string, string)> _validator;
-    private readonly IRateLimitService _rateLimit;
-
-    public ChatHub(ILogger<ChatHub> logger, IChatMessageRepository chatRepo, IValidator<(string, string)> validator, IRateLimitService rateLimit)
-    {
-        _logger = logger;
-        _chatRepo = chatRepo;
-        _validator = validator;
-        _rateLimit = rateLimit;
-    }
+    private readonly ILogger<ChatHub> _logger = logger;
+    private readonly IChatMessageRepository _chatRepo = chatRepo;
+    private readonly IValidator<(string, string)> _validator = validator;
+    private readonly IRateLimitService _rateLimit = rateLimit;
 
     public async Task JoinRoom(string roomId)
     {

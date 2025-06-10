@@ -1,12 +1,12 @@
-using FluentAssertions;
 using Moq;
+using FluentAssertions;
+using StoryPointPlaybook.Domain.Enums;
+using StoryPointPlaybook.Domain.Entities;
+using StoryPointPlaybook.Domain.Interfaces;
+using StoryPointPlaybook.Application.Common;
+using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Handlers;
 using StoryPointPlaybook.Application.CQRS.Commands;
-using StoryPointPlaybook.Application.Interfaces;
-using StoryPointPlaybook.Application.Common;
-using StoryPointPlaybook.Domain.Entities;
-using StoryPointPlaybook.Domain.Enums;
-using StoryPointPlaybook.Domain.Interfaces;
 
 namespace StoryPointPlaybook.Tests.Unit.Application;
 
@@ -18,10 +18,7 @@ public class SubmitVoteHandlerTests
     private readonly Mock<IGameHubNotifier> _hubMock = new();
     private readonly SubmitVoteHandler _handler;
 
-    public SubmitVoteHandlerTests()
-    {
-        _handler = new SubmitVoteHandler(_storyRepoMock.Object, _userRepoMock.Object, _voteRepoMock.Object, _hubMock.Object);
-    }
+    public SubmitVoteHandlerTests() => _handler = new SubmitVoteHandler(_storyRepoMock.Object, _userRepoMock.Object, _voteRepoMock.Object, _hubMock.Object);
 
     [Fact]
     public async Task Handle_StoryNotFound_ThrowsException()

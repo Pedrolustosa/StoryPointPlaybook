@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using StoryPointPlaybook.Api.Hubs;
+﻿using StoryPointPlaybook.API.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using StoryPointPlaybook.Application.Interfaces;
 
-public class ChatHubNotifier : IChatHubNotifier
-{
-    private readonly IHubContext<ChatHub> _hub;
+namespace StoryPointPlaybook.API.SignalR;
 
-    public ChatHubNotifier(IHubContext<ChatHub> hub)
-    {
-        _hub = hub;
-    }
+public class ChatHubNotifier(IHubContext<ChatHub> hub) : IChatHubNotifier
+{
+    private readonly IHubContext<ChatHub> _hub = hub;
 
     public async Task NotifyMessageSent(Guid roomId, string userName, string message, DateTime timestamp)
     {

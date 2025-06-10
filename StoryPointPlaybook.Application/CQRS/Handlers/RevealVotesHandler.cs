@@ -1,18 +1,14 @@
 ﻿using MediatR;
+using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Stories.Commands;
-using StoryPointPlaybook.Domain.Interfaces;
 
-public class RevealVotesHandler : IRequestHandler<RevealVotesCommand, Unit>
+namespace StoryPointPlaybook.Application.CQRS.Handlers;
+
+public class RevealVotesHandler(IStoryRepository storyRepo, IGameHubNotifier notifier) : IRequestHandler<RevealVotesCommand, Unit>
 {
-    private readonly IStoryRepository _storyRepo;
-    private readonly IGameHubNotifier _notifier;
-
-    public RevealVotesHandler(IStoryRepository storyRepo, IGameHubNotifier notifier)
-    {
-        _storyRepo = storyRepo;
-        _notifier = notifier;
-    }
+    private readonly IStoryRepository _storyRepo = storyRepo;
+    private readonly IGameHubNotifier _notifier = notifier;
 
     public async Task<Unit> Handle(RevealVotesCommand request, CancellationToken cancellationToken)
     {

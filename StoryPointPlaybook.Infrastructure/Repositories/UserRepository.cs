@@ -5,14 +5,9 @@ using StoryPointPlaybook.Infrastructure.Data;
 
 namespace StoryPointPlaybook.Infrastructure.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository(PlanningPokerContext context) : IUserRepository
 {
-    private readonly PlanningPokerContext _context;
-
-    public UserRepository(PlanningPokerContext context)
-    {
-        _context = context;
-    }
+    private readonly PlanningPokerContext _context = context;
 
     public async Task<User?> GetByIdAsync(Guid id)
     {
@@ -37,5 +32,4 @@ public class UserRepository : IUserRepository
             .Where(u => u.RoomId == roomId)
             .ToListAsync();
     }
-
 }

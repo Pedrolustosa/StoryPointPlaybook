@@ -1,23 +1,15 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using StoryPointPlaybook.Application.DTOs;
-using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Domain.Interfaces;
-using StoryPointPlaybook.Infrastructure.Repositories;
+using StoryPointPlaybook.Application.Interfaces;
 
 namespace StoryPointPlaybook.Api.Hubs;
 
-public class GameHub : Hub
+public class GameHub(ILogger<GameHub> logger, IConnectedUserTracker tracker, IStoryRepository storyRepository) : Hub
 {
-    private readonly ILogger<GameHub> _logger;
-    private readonly IConnectedUserTracker _tracker;
-    private readonly IStoryRepository _storyRepository;
-
-    public GameHub(ILogger<GameHub> logger, IConnectedUserTracker tracker, IStoryRepository storyRepository)
-    {
-        _logger = logger;
-        _tracker = tracker;
-        _storyRepository = storyRepository;
-    }
+    private readonly ILogger<GameHub> _logger = logger;
+    private readonly IConnectedUserTracker _tracker = tracker;
+    private readonly IStoryRepository _storyRepository = storyRepository;
 
     public async Task JoinRoom(string roomCode, Guid roomId, string userId)
     {

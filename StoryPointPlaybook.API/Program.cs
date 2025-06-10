@@ -7,6 +7,10 @@ using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using StoryPointPlaybook.API.SignalR;
 using Microsoft.AspNetCore.Diagnostics;
+using StoryPointPlaybook.API.Common;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Infrastructure.Data;
 using StoryPointPlaybook.Application.Services;
@@ -75,7 +79,20 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 builder.Services.AddOptionsWithValidateOnStart<CreateRoomCommand>();
 
 // Controllers e Swagger
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(ms => ms.Value?.Errors.Count > 0)
+                .SelectMany(kvp => kvp.Value!.Errors
+                    .Select(e => $"{kvp.Key}: {e.ErrorMessage}"))
+                .ToList();
+            var response = ApiResponse<string>.ErrorResponse("Erro de validação.", errors);
+            return new BadRequestObjectResult(response);
+        };
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks()
@@ -110,16 +127,20 @@ app.UseExceptionHandler(config =>
 {
     config.Run(async context =>
     {
-        context.Response.StatusCode = 400;
         context.Response.ContentType = "application/json";
 
         var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
         if (ex is ValidationException ve)
         {
-            var result = new
-            {
-                Errors = ve.Errors.Select(e => new { e.PropertyName, e.ErrorMessage })
-            };
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            var errors = ve.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}").ToList();
+            var result = ApiResponse<string>.ErrorResponse("Erro de validação.", errors);
+            await context.Response.WriteAsJsonAsync(result);
+        }
+        else if (ex is not null)
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            var result = ApiResponse<string>.ErrorResponse("Erro interno do servidor.");
             await context.Response.WriteAsJsonAsync(result);
         }
     });

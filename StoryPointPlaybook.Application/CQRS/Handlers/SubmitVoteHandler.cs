@@ -2,6 +2,7 @@
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Domain.Exceptions;
+using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Commands;
 using StoryPointPlaybook.Application.Events;
 

@@ -5,6 +5,7 @@ using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Domain.Exceptions;
 using MediatR;
+using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Handlers;
 using StoryPointPlaybook.Application.CQRS.Commands;
 using StoryPointPlaybook.Application.Events;

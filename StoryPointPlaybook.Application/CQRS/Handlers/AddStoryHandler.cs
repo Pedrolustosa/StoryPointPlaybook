@@ -34,9 +34,8 @@ public class AddStoryHandler(
 
         var room = await _roomRepository.GetByIdAsync(request.RoomId)
             ?? throw new RoomNotFoundException();
-
         await _mediator.Publish(new StoryAddedEvent(room.Code, response), cancellationToken);
-
+        await _hubNotifier.NotifyStoryAdded(room.Code, response);
         return response;
     }
 }

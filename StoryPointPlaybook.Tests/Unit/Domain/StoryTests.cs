@@ -20,7 +20,7 @@ public class StoryTests
     {
         var story = new Story("Title", "Desc", Guid.NewGuid());
         story.Votes.Add(new Vote(story.Id, Guid.NewGuid(), "1"));
-        story.VotesRevealed = true;
+        story.RevealVotes();
 
         story.ResetVotes();
 

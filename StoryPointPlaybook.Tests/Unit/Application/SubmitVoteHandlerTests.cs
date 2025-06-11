@@ -16,9 +16,10 @@ public class SubmitVoteHandlerTests
     private readonly Mock<IUserRepository> _userRepoMock = new();
     private readonly Mock<IVoteRepository> _voteRepoMock = new();
     private readonly Mock<IGameHubNotifier> _hubMock = new();
+    private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly SubmitVoteHandler _handler;
 
-    public SubmitVoteHandlerTests() => _handler = new SubmitVoteHandler(_storyRepoMock.Object, _userRepoMock.Object, _voteRepoMock.Object, _hubMock.Object);
+    public SubmitVoteHandlerTests() => _handler = new SubmitVoteHandler(_storyRepoMock.Object, _userRepoMock.Object, _voteRepoMock.Object, _hubMock.Object, _uowMock.Object);
 
     [Fact]
     public async Task Handle_StoryNotFound_ThrowsException()
@@ -62,6 +63,7 @@ public class SubmitVoteHandlerTests
 
         _voteRepoMock.Verify(v => v.AddAsync(It.IsAny<Vote>()), Times.Once);
         _hubMock.Verify(h => h.NotifyUserVoted(room.Id, user.Id), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
@@ -85,6 +87,7 @@ public class SubmitVoteHandlerTests
         existingVote.Value.Should().Be("5");
         _voteRepoMock.Verify(v => v.UpdateAsync(existingVote), Times.Once);
         _hubMock.Verify(h => h.NotifyUserVoted(room.Id, user.Id), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
@@ -114,5 +117,7 @@ public class SubmitVoteHandlerTests
         story.VotesRevealed.Should().BeTrue();
         _hubMock.Verify(h => h.NotifyVotesRevealed(room.Id), Times.Once);
         _storyRepoMock.Verify(s => s.UpdateAsync(story), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(), Times.Exactly(2));
     }
 }
+

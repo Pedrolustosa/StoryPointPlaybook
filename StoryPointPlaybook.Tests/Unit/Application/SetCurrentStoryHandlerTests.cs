@@ -15,9 +15,10 @@ public class SetCurrentStoryHandlerTests
 {
     private readonly Mock<IRoomRepository> _roomRepoMock = new();
     private readonly Mock<IGameHubNotifier> _hubMock = new();
+    private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly SetCurrentStoryHandler _handler;
 
-    public SetCurrentStoryHandlerTests() => _handler = new SetCurrentStoryHandler(_roomRepoMock.Object, _hubMock.Object);
+    public SetCurrentStoryHandlerTests() => _handler = new SetCurrentStoryHandler(_roomRepoMock.Object, _hubMock.Object, _uowMock.Object);
 
     [Fact]
     public async Task Handle_RoomNotFound_ThrowsException()
@@ -55,5 +56,7 @@ public class SetCurrentStoryHandlerTests
         room.CurrentStoryId.Should().Be(story.Id);
         _roomRepoMock.Verify(r => r.UpdateAsync(room), Times.Once);
         _hubMock.Verify(h => h.NotifyCurrentStoryChanged(room.Code, It.IsAny<StoryResponse>()), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 }
+

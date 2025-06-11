@@ -26,12 +26,10 @@ public class SessionRepository(PlanningPokerContext context) : ISessionRepositor
     public async Task AddAsync(Session session)
     {
         await _context.Sessions.AddAsync(session);
-        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(Session session)
     {
         _context.Sessions.Update(session);
-        await _context.SaveChangesAsync();
     }
 }

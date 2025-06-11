@@ -12,7 +12,6 @@ public class ChatMessageRepository(PlanningPokerContext context) : IChatMessageR
     public async Task AddAsync(ChatMessage message)
     {
         await _context.ChatMessages.AddAsync(message);
-        await _context.SaveChangesAsync();
     }
 
     public async Task<List<ChatMessage>> GetByRoomIdAsync(Guid roomId)

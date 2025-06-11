@@ -12,13 +12,15 @@ public class JoinRoomHandlerTests
 {
     private readonly Mock<IRoomRepository> _roomRepoMock;
     private readonly Mock<IUserRepository> _userRepoMock;
+    private readonly Mock<IUnitOfWork> _uowMock;
     private readonly JoinRoomHandler _handler;
 
     public JoinRoomHandlerTests()
     {
         _roomRepoMock = new Mock<IRoomRepository>();
         _userRepoMock = new Mock<IUserRepository>();
-        _handler = new JoinRoomHandler(_roomRepoMock.Object, _userRepoMock.Object);
+        _uowMock = new Mock<IUnitOfWork>();
+        _handler = new JoinRoomHandler(_roomRepoMock.Object, _userRepoMock.Object, _uowMock.Object);
     }
 
     [Fact]
@@ -69,5 +71,7 @@ public class JoinRoomHandlerTests
         result.Role.Should().Be("Member");
         result.RoomId.Should().Be(room.Id);
         _userRepoMock.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 }
+

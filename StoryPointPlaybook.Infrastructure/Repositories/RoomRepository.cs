@@ -28,18 +28,15 @@ public class RoomRepository(PlanningPokerContext context) : IRoomRepository
     public async Task AddAsync(Room room)
     {
         await _context.Rooms.AddAsync(room);
-        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(Room room)
     {
         _context.Rooms.Update(room);
-        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Room room)
     {
         _context.Rooms.Remove(room);
-        await _context.SaveChangesAsync();
     }
 }

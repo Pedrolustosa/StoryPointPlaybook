@@ -28,19 +28,16 @@ public class StoryRepository(PlanningPokerContext context) : IStoryRepository
     public async Task AddAsync(Story story)
     {
         await _context.Stories.AddAsync(story);
-        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(Story story)
     {
         _context.Stories.Update(story);
-        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Story story)
     {
         _context.Stories.Remove(story);
-        await _context.SaveChangesAsync();
     }
 
     public async Task<Story?> GetByIdWithRoomAsync(Guid storyId)

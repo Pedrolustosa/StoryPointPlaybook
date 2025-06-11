@@ -6,10 +6,11 @@ using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class JoinRoomHandler(IRoomRepository roomRepository, IUserRepository userRepository) : IRequestHandler<JoinRoomCommand, UserDto>
+public class JoinRoomHandler(IRoomRepository roomRepository, IUserRepository userRepository, IUnitOfWork unitOfWork) : IRequestHandler<JoinRoomCommand, UserDto>
 {
     private readonly IRoomRepository _roomRepository = roomRepository;
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<UserDto> Handle(JoinRoomCommand request, CancellationToken cancellationToken)
     {
@@ -19,6 +20,7 @@ public class JoinRoomHandler(IRoomRepository roomRepository, IUserRepository use
 
         var user = new User(request.DisplayName, request.Role, room.Id);
         await _userRepository.AddAsync(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return new UserDto
         {
@@ -29,3 +31,4 @@ public class JoinRoomHandler(IRoomRepository roomRepository, IUserRepository use
         };
     }
 }
+

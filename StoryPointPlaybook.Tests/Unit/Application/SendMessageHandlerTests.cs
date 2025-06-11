@@ -12,9 +12,10 @@ public class SendMessageHandlerTests
 {
     private readonly Mock<IChatMessageRepository> _repoMock = new();
     private readonly Mock<IChatHubNotifier> _notifierMock = new();
+    private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly SendMessageHandler _handler;
 
-    public SendMessageHandlerTests() => _handler = new SendMessageHandler(_repoMock.Object, _notifierMock.Object);
+    public SendMessageHandlerTests() => _handler = new SendMessageHandler(_repoMock.Object, _notifierMock.Object, _uowMock.Object);
 
     [Fact]
     public async Task Handle_AddsMessageAndNotifies()
@@ -31,5 +32,7 @@ public class SendMessageHandlerTests
         // Assert
         _repoMock.Verify(r => r.AddAsync(It.Is<ChatMessage>(m => m.RoomId == command.RoomId && m.User == command.UserName && m.Message == command.Message)), Times.Once);
         _notifierMock.Verify(n => n.NotifyMessageSent(command.RoomId, command.UserName, command.Message, It.IsAny<DateTime>()), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 }
+

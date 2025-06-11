@@ -21,7 +21,7 @@ public class CreateRoomHandlerTests
     public async Task Handle_CreatesRoomAndReturnsDto()
     {
         _roomRepoMock.Setup(r => r.AddAsync(It.IsAny<Room>())).Returns(Task.CompletedTask);
-        var command = new CreateRoomCommand("Room", VotingScale.Fibonacci, 60, true, "Creator");
+        var command = new CreateRoomCommand();
 
         var result = await _handler.Handle(command, CancellationToken.None);
 

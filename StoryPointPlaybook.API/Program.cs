@@ -11,6 +11,7 @@ using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.Validators;
 using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 using StoryPointPlaybook.Infra.IoC;
+using StoryPointPlaybook.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

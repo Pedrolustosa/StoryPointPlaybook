@@ -5,10 +5,11 @@ using StoryPointPlaybook.Application.CQRS.Stories.Commands;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class RevealVotesHandler(IStoryRepository storyRepo, IGameHubNotifier notifier) : IRequestHandler<RevealVotesCommand, Unit>
+public class RevealVotesHandler(IStoryRepository storyRepo, IGameHubNotifier notifier, IUnitOfWork unitOfWork) : IRequestHandler<RevealVotesCommand, Unit>
 {
     private readonly IStoryRepository _storyRepo = storyRepo;
     private readonly IGameHubNotifier _notifier = notifier;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<Unit> Handle(RevealVotesCommand request, CancellationToken cancellationToken)
     {
@@ -18,6 +19,7 @@ public class RevealVotesHandler(IStoryRepository storyRepo, IGameHubNotifier not
 
         story.RevealVotes();
         await _storyRepo.UpdateAsync(story);
+        await _unitOfWork.SaveChangesAsync();
 
         await _notifier.NotifyVotesRevealed(story.RoomId);
 

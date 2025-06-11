@@ -6,9 +6,10 @@ using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class CreateRoomHandler(IRoomRepository roomRepo) : IRequestHandler<CreateRoomCommand, RoomResponse>
+public class CreateRoomHandler(IRoomRepository roomRepo, IUnitOfWork unitOfWork) : IRequestHandler<CreateRoomCommand, RoomResponse>
 {
     private readonly IRoomRepository _roomRepo = roomRepo;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<RoomResponse> Handle(CreateRoomCommand request, CancellationToken cancellationToken)
     {
@@ -28,6 +29,7 @@ public class CreateRoomHandler(IRoomRepository roomRepo) : IRequestHandler<Creat
         room.Participants.Add(user);
 
         await _roomRepo.AddAsync(room);
+        await _unitOfWork.SaveChangesAsync();
 
         return new RoomResponse
         {
@@ -54,5 +56,6 @@ public class CreateRoomHandler(IRoomRepository roomRepo) : IRequestHandler<Creat
         };
     }
 }
+
 
 

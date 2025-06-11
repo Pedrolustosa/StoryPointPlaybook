@@ -11,12 +11,14 @@ public class SubmitVoteHandler(
     IStoryRepository storyRepo,
     IUserRepository userRepo,
     IVoteRepository voteRepo,
-    IGameHubNotifier notifier) : IRequestHandler<SubmitVoteCommand>
+    IGameHubNotifier notifier,
+    IUnitOfWork unitOfWork) : IRequestHandler<SubmitVoteCommand>
 {
     private readonly IStoryRepository _storyRepo = storyRepo;
     private readonly IUserRepository _userRepo = userRepo;
     private readonly IVoteRepository _voteRepo = voteRepo;
     private readonly IGameHubNotifier _notifier = notifier;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task Handle(SubmitVoteCommand request, CancellationToken cancellationToken)
     {
@@ -27,11 +29,13 @@ public class SubmitVoteHandler(
         {
             existingVote.SetValue(request.Value);
             await _voteRepo.UpdateAsync(existingVote);
+            await _unitOfWork.SaveChangesAsync();
         }
         else
         {
             var vote = new Vote(request.StoryId, user.Id, request.Value);
             await _voteRepo.AddAsync(vote);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         await _notifier.NotifyUserVoted(story.Room.Id, user.Id);
@@ -48,7 +52,9 @@ public class SubmitVoteHandler(
         {
             story.RevealVotes();
             await _storyRepo.UpdateAsync(story);
+            await _unitOfWork.SaveChangesAsync();
             await _notifier.NotifyVotesRevealed(story.Room.Id);
         }
     }
 }
+

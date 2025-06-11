@@ -7,10 +7,11 @@ using StoryPointPlaybook.Application.CQRS.Commands;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class SetCurrentStoryHandler(IRoomRepository roomRepository, IGameHubNotifier hubNotifier) : IRequestHandler<SetCurrentStoryCommand, StoryResponse>
+public class SetCurrentStoryHandler(IRoomRepository roomRepository, IGameHubNotifier hubNotifier, IUnitOfWork unitOfWork) : IRequestHandler<SetCurrentStoryCommand, StoryResponse>
 {
     private readonly IRoomRepository _roomRepository = roomRepository;
     private readonly IGameHubNotifier _hubNotifier = hubNotifier;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<StoryResponse> Handle(SetCurrentStoryCommand request, CancellationToken cancellationToken)
     {
@@ -18,6 +19,7 @@ public class SetCurrentStoryHandler(IRoomRepository roomRepository, IGameHubNoti
         var story = room.Stories.FirstOrDefault(s => s.Id == request.StoryId)??throw new Exception(ApplicationErrors.StoryNotFound);
         room.SetCurrentStory(story.Id);
         await _roomRepository.UpdateAsync(room);
+        await _unitOfWork.SaveChangesAsync();
 
         var storyDto = new StoryResponse
         {
@@ -30,3 +32,4 @@ public class SetCurrentStoryHandler(IRoomRepository roomRepository, IGameHubNoti
         return storyDto;
     }
 }
+

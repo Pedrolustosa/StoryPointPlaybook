@@ -4,6 +4,7 @@ using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Stories.Commands;
+using StoryPointPlaybook.Domain.Exceptions;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
@@ -27,7 +28,8 @@ public class AddStoryHandler(IStoryRepository storyRepository, IRoomRepository r
             Description = story.Description
         };
 
-        var room = await _roomRepository.GetByIdAsync(request.RoomId)??throw new Exception("Sala não encontrada");
+        var room = await _roomRepository.GetByIdAsync(request.RoomId)
+            ?? throw new RoomNotFoundException();
         await _hubNotifier.NotifyStoryAdded(room.Code, response);
         return response;
     }

@@ -4,7 +4,7 @@ using StoryPointPlaybook.Domain.Enums;
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
-using StoryPointPlaybook.Application.Common;
+using StoryPointPlaybook.Domain.Exceptions;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Handlers;
 using StoryPointPlaybook.Application.CQRS.Commands;
@@ -26,7 +26,7 @@ public class SetCurrentStoryHandlerTests
         _roomRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Room?)null);
         var command = new SetCurrentStoryCommand(Guid.NewGuid(), Guid.NewGuid());
         var act = () => _handler.Handle(command, CancellationToken.None);
-        await act.Should().ThrowAsync<Exception>().WithMessage(ApplicationErrors.RoomNotFound);
+        await act.Should().ThrowAsync<RoomNotFoundException>();
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class SetCurrentStoryHandlerTests
         _roomRepoMock.Setup(r => r.GetByIdAsync(room.Id)).ReturnsAsync(room);
         var command = new SetCurrentStoryCommand(room.Id, Guid.NewGuid());
         var act = () => _handler.Handle(command, CancellationToken.None);
-        await act.Should().ThrowAsync<Exception>().WithMessage(ApplicationErrors.StoryNotFound);
+        await act.Should().ThrowAsync<StoryNotFoundException>();
     }
 
     [Fact]

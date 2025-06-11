@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\StoryPointPlaybook.Infrastructure\StoryPointPlaybook.Infrastructure.csproj" />
+    <ProjectReference Include="..\StoryPointPlaybook.Domain\StoryPointPlaybook.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

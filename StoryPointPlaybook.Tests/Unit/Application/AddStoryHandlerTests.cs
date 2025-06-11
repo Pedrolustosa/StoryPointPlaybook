@@ -7,6 +7,7 @@ using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Handlers;
 using StoryPointPlaybook.Application.CQRS.Stories.Commands;
+using StoryPointPlaybook.Domain.Exceptions;
 
 namespace StoryPointPlaybook.Tests.Unit.Application;
 
@@ -31,7 +32,7 @@ public class AddStoryHandlerTests
         var act = () => _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<Exception>();
+        await act.Should().ThrowAsync<RoomNotFoundException>();
     }
 
     [Fact]

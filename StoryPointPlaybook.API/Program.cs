@@ -1,23 +1,16 @@
 ﻿using Serilog;
 using MediatR;
 using FluentValidation;
-using StoryPointPlaybook.Api.Hubs;
 using StoryPointPlaybook.API.Hubs;
 using System.Threading.RateLimiting;
-using Microsoft.EntityFrameworkCore;
 using StoryPointPlaybook.API.SignalR;
 using Microsoft.AspNetCore.Diagnostics;
 using StoryPointPlaybook.API.Common;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using StoryPointPlaybook.Domain.Interfaces;
-using StoryPointPlaybook.Infrastructure.Data;
 using StoryPointPlaybook.Application.Services;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.Validators;
-using StoryPointPlaybook.Infrastructure.Repositories;
 using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
+using StoryPointPlaybook.Infra.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,9 +29,8 @@ builder.Host.UseSerilog();
 
 #region Serviços e Injeção de Dependência
 
-// DbContext
-builder.Services.AddDbContext<PlanningPokerContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Infraestrutura
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
@@ -54,15 +46,6 @@ builder.Services.AddCors(options =>
               );
     });
 });
-
-// Repositórios
-builder.Services.AddScoped<IRoomRepository, RoomRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IStoryRepository, StoryRepository>();
-builder.Services.AddScoped<IVoteRepository, VoteRepository>();
-builder.Services.AddScoped<ISessionRepository, SessionRepository>();
-builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // SignalR e Notificações
 builder.Services.AddSignalR();

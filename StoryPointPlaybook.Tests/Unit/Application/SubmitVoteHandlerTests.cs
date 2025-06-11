@@ -3,7 +3,7 @@ using FluentAssertions;
 using StoryPointPlaybook.Domain.Enums;
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Domain.Interfaces;
-using StoryPointPlaybook.Application.Common;
+using StoryPointPlaybook.Domain.Exceptions;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Handlers;
 using StoryPointPlaybook.Application.CQRS.Commands;
@@ -27,7 +27,7 @@ public class SubmitVoteHandlerTests
         _storyRepoMock.Setup(s => s.GetByIdWithRoomAsync(It.IsAny<Guid>())).ReturnsAsync((Story?)null);
         var command = new SubmitVoteCommand(Guid.NewGuid(), Guid.NewGuid(), "1");
         var act = () => _handler.Handle(command, CancellationToken.None);
-        await act.Should().ThrowAsync<Exception>().WithMessage(ApplicationErrors.StoryNotFound);
+        await act.Should().ThrowAsync<StoryNotFoundException>();
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class SubmitVoteHandlerTests
         _userRepoMock.Setup(u => u.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((User?)null);
         var command = new SubmitVoteCommand(story.Id, Guid.NewGuid(), "1");
         var act = () => _handler.Handle(command, CancellationToken.None);
-        await act.Should().ThrowAsync<Exception>().WithMessage(ApplicationErrors.UserNotFound);
+        await act.Should().ThrowAsync<UserNotFoundException>();
     }
 
     [Fact]

@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Domain.Interfaces;
-using StoryPointPlaybook.Application.Common;
+using StoryPointPlaybook.Domain.Exceptions;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Commands;
 
@@ -22,8 +22,10 @@ public class SubmitVoteHandler(
 
     public async Task Handle(SubmitVoteCommand request, CancellationToken cancellationToken)
     {
-        var story = await _storyRepo.GetByIdWithRoomAsync(request.StoryId)??throw new Exception(ApplicationErrors.StoryNotFound);
-        var user = await _userRepo.GetByIdAsync(request.UserId)??throw new Exception(ApplicationErrors.UserNotFound);
+        var story = await _storyRepo.GetByIdWithRoomAsync(request.StoryId)
+            ?? throw new StoryNotFoundException();
+        var user = await _userRepo.GetByIdAsync(request.UserId)
+            ?? throw new UserNotFoundException();
         var existingVote = story.Votes.FirstOrDefault(v => v.UserId == user.Id);
         if (existingVote != null)
         {

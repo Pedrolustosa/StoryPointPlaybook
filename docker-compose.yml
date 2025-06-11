@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_password123"
+    ports:
+      - "1433:1433"
+  api:
+    build:
+      context: .
+      dockerfile: StoryPointPlaybook.API/Dockerfile
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=PlanningPokerDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    ports:
+      - "8080:8080"
+      - "8081:8081"

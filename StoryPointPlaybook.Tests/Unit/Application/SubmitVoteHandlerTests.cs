@@ -4,9 +4,11 @@ using StoryPointPlaybook.Domain.Enums;
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Domain.Exceptions;
+using MediatR;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Handlers;
 using StoryPointPlaybook.Application.CQRS.Commands;
+using StoryPointPlaybook.Application.Events;
 
 namespace StoryPointPlaybook.Tests.Unit.Application;
 
@@ -15,11 +17,11 @@ public class SubmitVoteHandlerTests
     private readonly Mock<IStoryRepository> _storyRepoMock = new();
     private readonly Mock<IUserRepository> _userRepoMock = new();
     private readonly Mock<IVoteRepository> _voteRepoMock = new();
-    private readonly Mock<IGameHubNotifier> _hubMock = new();
+    private readonly Mock<IMediator> _mediatorMock = new();
     private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly SubmitVoteHandler _handler;
 
-    public SubmitVoteHandlerTests() => _handler = new SubmitVoteHandler(_storyRepoMock.Object, _userRepoMock.Object, _voteRepoMock.Object, _hubMock.Object, _uowMock.Object);
+    public SubmitVoteHandlerTests() => _handler = new SubmitVoteHandler(_storyRepoMock.Object, _userRepoMock.Object, _voteRepoMock.Object, _uowMock.Object, _mediatorMock.Object);
 
     [Fact]
     public async Task Handle_StoryNotFound_ThrowsException()
@@ -56,13 +58,13 @@ public class SubmitVoteHandlerTests
         _voteRepoMock.Setup(v => v.AddAsync(It.IsAny<Vote>()))
             .Callback<Vote>(v => story.Votes.Add(v))
             .Returns(Task.CompletedTask);
-        _hubMock.Setup(h => h.NotifyUserVoted(room.Id, user.Id)).Returns(Task.CompletedTask);
+        _mediatorMock.Setup(m => m.Publish(It.IsAny<VoteSubmittedEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         var command = new SubmitVoteCommand(story.Id, user.Id, "3");
 
         await _handler.Handle(command, CancellationToken.None);
 
         _voteRepoMock.Verify(v => v.AddAsync(It.IsAny<Vote>()), Times.Once);
-        _hubMock.Verify(h => h.NotifyUserVoted(room.Id, user.Id), Times.Once);
+        _mediatorMock.Verify(m => m.Publish(It.IsAny<VoteSubmittedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
@@ -79,14 +81,14 @@ public class SubmitVoteHandlerTests
         _storyRepoMock.Setup(s => s.GetByIdWithRoomAsync(story.Id)).ReturnsAsync(story);
         _userRepoMock.Setup(u => u.GetByIdAsync(user.Id)).ReturnsAsync(user);
         _voteRepoMock.Setup(v => v.UpdateAsync(existingVote)).Returns(Task.CompletedTask);
-        _hubMock.Setup(h => h.NotifyUserVoted(room.Id, user.Id)).Returns(Task.CompletedTask);
+        _mediatorMock.Setup(m => m.Publish(It.IsAny<VoteSubmittedEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         var command = new SubmitVoteCommand(story.Id, user.Id, "5");
 
         await _handler.Handle(command, CancellationToken.None);
 
         existingVote.Value.Should().Be("5");
         _voteRepoMock.Verify(v => v.UpdateAsync(existingVote), Times.Once);
-        _hubMock.Verify(h => h.NotifyUserVoted(room.Id, user.Id), Times.Once);
+        _mediatorMock.Verify(m => m.Publish(It.IsAny<VoteSubmittedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 
@@ -107,15 +109,14 @@ public class SubmitVoteHandlerTests
         _voteRepoMock.Setup(v => v.AddAsync(It.IsAny<Vote>()))
             .Callback<Vote>(v => story.Votes.Add(v))
             .Returns(Task.CompletedTask);
-        _hubMock.Setup(h => h.NotifyUserVoted(room.Id, user2.Id)).Returns(Task.CompletedTask);
+        _mediatorMock.Setup(m => m.Publish(It.IsAny<VoteSubmittedEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _storyRepoMock.Setup(s => s.UpdateAsync(story)).Returns(Task.CompletedTask);
-        _hubMock.Setup(h => h.NotifyVotesRevealed(room.Id)).Returns(Task.CompletedTask);
         var command = new SubmitVoteCommand(story.Id, user2.Id, "2");
 
         await _handler.Handle(command, CancellationToken.None);
 
         story.VotesRevealed.Should().BeTrue();
-        _hubMock.Verify(h => h.NotifyVotesRevealed(room.Id), Times.Once);
+        _mediatorMock.Verify(m => m.Publish(It.IsAny<VoteSubmittedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
         _storyRepoMock.Verify(s => s.UpdateAsync(story), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(), Times.Exactly(2));
     }

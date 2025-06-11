@@ -1,9 +1,9 @@
+using Moq;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using Moq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using StoryPointPlaybook.API.Common;
 

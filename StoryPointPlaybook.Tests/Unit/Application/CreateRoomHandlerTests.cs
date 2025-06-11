@@ -33,4 +33,3 @@ public class CreateRoomHandlerTests
         _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 }
-

@@ -42,4 +42,3 @@ public class RevealVotesHandlerTests
         _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
 }
-

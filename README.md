@@ -52,7 +52,7 @@ The project follows Clean Architecture principles with distinct layers:
 
 ### Backend Setup
 1. Clone this repository
-2. Update the connection string in `appsettings.json` in the API project
+2. Set the connection string via `ConnectionStrings__DefaultConnection` using environment variables or `.NET` user secrets
 3. Run database migrations:
 ```
 dotnet ef database update --project StoryPointPlaybook.Infrastructure --startup-project StoryPointPlaybook.API
@@ -63,11 +63,11 @@ dotnet run --project StoryPointPlaybook.API
 ```
 
 ### Docker Setup
-The application can be containerized using Docker:
+You can spin up the API and a SQL Server instance using Docker Compose:
 ```
-docker build -t storypointplaybook -f StoryPointPlaybook.API/Dockerfile .
-docker run -p 8080:80 storypointplaybook
+docker compose up --build
 ```
+This will expose the API on ports `8080` and `8081` and SQL Server on `1433`.
 
 ## Usage
 1. Create a new Planning Poker room

@@ -3,7 +3,7 @@ using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.Interfaces;
 
-namespace StoryPointPlaybook.Api.Hubs;
+namespace StoryPointPlaybook.API.Hubs;
 
 public class GameHub(ILogger<GameHub> logger, IConnectedUserTracker tracker, IStoryRepository storyRepository) : Hub
 {

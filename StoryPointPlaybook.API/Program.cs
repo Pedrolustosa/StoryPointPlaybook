@@ -1,16 +1,12 @@
 ﻿using Serilog;
 using MediatR;
 using FluentValidation;
-using StoryPointPlaybook.Api.Hubs;
 using StoryPointPlaybook.API.Hubs;
 using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using StoryPointPlaybook.API.SignalR;
 using Microsoft.AspNetCore.Diagnostics;
 using StoryPointPlaybook.API.Common;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Infrastructure.Data;
 using StoryPointPlaybook.Application.Services;

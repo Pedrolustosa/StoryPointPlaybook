@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
-using StoryPointPlaybook.Application.Common;
+using StoryPointPlaybook.Domain.Exceptions;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Commands;
 
@@ -15,8 +15,10 @@ public class SetCurrentStoryHandler(IRoomRepository roomRepository, IGameHubNoti
 
     public async Task<StoryResponse> Handle(SetCurrentStoryCommand request, CancellationToken cancellationToken)
     {
-        var room = await _roomRepository.GetByIdAsync(request.RoomId)??throw new Exception(ApplicationErrors.RoomNotFound);
-        var story = room.Stories.FirstOrDefault(s => s.Id == request.StoryId)??throw new Exception(ApplicationErrors.StoryNotFound);
+        var room = await _roomRepository.GetByIdAsync(request.RoomId)
+            ?? throw new RoomNotFoundException();
+        var story = room.Stories.FirstOrDefault(s => s.Id == request.StoryId)
+            ?? throw new StoryNotFoundException();
         room.SetCurrentStory(story.Id);
         await _roomRepository.UpdateAsync(room);
         await _unitOfWork.SaveChangesAsync();

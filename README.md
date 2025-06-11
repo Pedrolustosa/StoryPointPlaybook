@@ -52,7 +52,7 @@ The project follows Clean Architecture principles with distinct layers:
 
 ### Backend Setup
 1. Clone this repository
-2. Update the connection string in `appsettings.json` in the API project
+2. Set the connection string as an environment variable `ConnectionStrings__DefaultConnection`
 3. Run database migrations:
 ```
 dotnet ef database update --project StoryPointPlaybook.Infrastructure --startup-project StoryPointPlaybook.API

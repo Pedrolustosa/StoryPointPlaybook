@@ -1,4 +1,4 @@
-﻿using StoryPointPlaybook.Api.Hubs;
+﻿using StoryPointPlaybook.API.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Application.Interfaces;

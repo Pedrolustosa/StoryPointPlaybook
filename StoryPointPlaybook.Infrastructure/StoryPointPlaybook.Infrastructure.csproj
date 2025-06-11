@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StoryPointPlaybook.Application\StoryPointPlaybook.Application.csproj" />
-    <ProjectReference Include="..\StoryPointPlaybook.Domain\StoryPointPlaybook.Domain.csproj" />
+    <Compile Remove="Redis\**" />
+    <EmbeddedResource Remove="Redis\**" />
+    <None Remove="Redis\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Redis\" />
+    <ProjectReference Include="..\StoryPointPlaybook.Application\StoryPointPlaybook.Application.csproj" />
+    <ProjectReference Include="..\StoryPointPlaybook.Domain\StoryPointPlaybook.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

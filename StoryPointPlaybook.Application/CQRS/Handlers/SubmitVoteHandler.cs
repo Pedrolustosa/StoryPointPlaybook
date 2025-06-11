@@ -4,6 +4,7 @@ using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Domain.Exceptions;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Commands;
+using StoryPointPlaybook.Application.Events;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
@@ -11,14 +12,14 @@ public class SubmitVoteHandler(
     IStoryRepository storyRepo,
     IUserRepository userRepo,
     IVoteRepository voteRepo,
-    IGameHubNotifier notifier,
-    IUnitOfWork unitOfWork) : IRequestHandler<SubmitVoteCommand>
+    IUnitOfWork unitOfWork,
+    IMediator mediator) : IRequestHandler<SubmitVoteCommand>
 {
     private readonly IStoryRepository _storyRepo = storyRepo;
     private readonly IUserRepository _userRepo = userRepo;
     private readonly IVoteRepository _voteRepo = voteRepo;
-    private readonly IGameHubNotifier _notifier = notifier;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMediator _mediator = mediator;
 
     public async Task Handle(SubmitVoteCommand request, CancellationToken cancellationToken)
     {
@@ -40,8 +41,6 @@ public class SubmitVoteHandler(
             await _unitOfWork.SaveChangesAsync();
         }
 
-        await _notifier.NotifyUserVoted(story.Room.Id, user.Id);
-
         var voters = story.Room.Participants
             .Where(p => !string.Equals(p.Role, "PO", StringComparison.OrdinalIgnoreCase))
             .ToList();
@@ -50,13 +49,17 @@ public class SubmitVoteHandler(
             .Count(v => !string.IsNullOrWhiteSpace(v.Value) &&
                         voters.Any(p => p.Id == v.UserId));
 
+        var votesRevealed = false;
+
         if (story.Room.AutoReveal && totalVotes == voters.Count)
         {
             story.RevealVotes();
             await _storyRepo.UpdateAsync(story);
             await _unitOfWork.SaveChangesAsync();
-            await _notifier.NotifyVotesRevealed(story.Room.Id);
+            votesRevealed = true;
         }
+
+        await _mediator.Publish(new VoteSubmittedEvent(story.Room.Id, user.Id, votesRevealed), cancellationToken);
     }
 }
 

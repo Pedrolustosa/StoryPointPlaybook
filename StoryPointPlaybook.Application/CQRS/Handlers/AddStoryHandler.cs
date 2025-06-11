@@ -2,18 +2,22 @@
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
-using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Stories.Commands;
+using StoryPointPlaybook.Application.Events;
 using StoryPointPlaybook.Domain.Exceptions;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class AddStoryHandler(IStoryRepository storyRepository, IRoomRepository roomRepository, IGameHubNotifier hubNotifier, IUnitOfWork unitOfWork) : IRequestHandler<AddStoryCommand, StoryResponse>
+public class AddStoryHandler(
+    IStoryRepository storyRepository,
+    IRoomRepository roomRepository,
+    IUnitOfWork unitOfWork,
+    IMediator mediator) : IRequestHandler<AddStoryCommand, StoryResponse>
 {
     private readonly IStoryRepository _storyRepository = storyRepository;
     private readonly IRoomRepository _roomRepository = roomRepository;
-    private readonly IGameHubNotifier _hubNotifier = hubNotifier;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMediator _mediator = mediator;
 
     public async Task<StoryResponse> Handle(AddStoryCommand request, CancellationToken cancellationToken)
     {
@@ -30,6 +34,7 @@ public class AddStoryHandler(IStoryRepository storyRepository, IRoomRepository r
 
         var room = await _roomRepository.GetByIdAsync(request.RoomId)
             ?? throw new RoomNotFoundException();
+        await _mediator.Publish(new StoryAddedEvent(room.Code, response), cancellationToken);
         await _hubNotifier.NotifyStoryAdded(room.Code, response);
         return response;
     }

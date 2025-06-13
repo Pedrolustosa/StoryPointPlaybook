@@ -17,11 +17,12 @@ public class SubmitVoteHandlerTests
     private readonly Mock<IStoryRepository> _storyRepoMock = new();
     private readonly Mock<IUserRepository> _userRepoMock = new();
     private readonly Mock<IVoteRepository> _voteRepoMock = new();
+    private readonly Mock<IGameHubNotifier> _gameHubNotifierMock = new();
     private readonly Mock<IMediator> _mediatorMock = new();
     private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly SubmitVoteHandler _handler;
 
-    public SubmitVoteHandlerTests() => _handler = new SubmitVoteHandler(_storyRepoMock.Object, _userRepoMock.Object, _voteRepoMock.Object, _uowMock.Object, _mediatorMock.Object);
+    public SubmitVoteHandlerTests() => _handler = new SubmitVoteHandler(_storyRepoMock.Object, _userRepoMock.Object, _voteRepoMock.Object, _uowMock.Object, _gameHubNotifierMock.Object, _mediatorMock.Object);
 
     [Fact]
     public async Task Handle_StoryNotFound_ThrowsException()

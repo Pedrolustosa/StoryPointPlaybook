@@ -10,4 +10,5 @@ public interface IStoryRepository
     Task UpdateAsync(Story story);
     Task DeleteAsync(Story story);
     Task<Story?> GetByIdWithRoomAsync(Guid storyId);
+    Task<Story?> GetByIdWithVotesAsync(Guid id);
 }

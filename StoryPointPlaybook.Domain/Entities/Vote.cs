@@ -8,6 +8,7 @@ public class Vote
     public Guid UserId { get; private set; }
     public User User { get; private set; }
     public string Value { get; private set; }
+    public bool IsRevealed { get; private set; }
 
     protected Vote() { }
 
@@ -22,5 +23,10 @@ public class Vote
     public void SetValue(string value)
     {
         Value = value;
+    }
+
+    public void Reveal()
+    {
+        IsRevealed = true;
     }
 }

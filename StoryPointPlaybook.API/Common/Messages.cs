@@ -12,6 +12,7 @@ public static class Messages
         public const string VotesRevealed = "Votos revelados com sucesso.";
         public const string ParticipantsRetrieved = "Participantes recuperados com sucesso.";
         public const string CurrentStorySelected = "História definida para votação com sucesso.";
+        public const string VotingStatusRetrieved = "Status de votação recuperado com sucesso.";
     }
 
     public static class Error

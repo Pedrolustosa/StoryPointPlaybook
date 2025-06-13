@@ -48,4 +48,13 @@ public class StoryRepository(PlanningPokerContext context) : IStoryRepository
             .Include(s => s.Votes)
             .FirstOrDefaultAsync(s => s.Id == storyId);
     }
+
+    public async Task<Story?> GetByIdWithVotesAsync(Guid id)
+    {
+        return await _context.Stories
+            .Include(s => s.Votes)
+            .ThenInclude(v => v.User)
+            .Include(s => s.Room)
+            .FirstOrDefaultAsync(s => s.Id == id);
+    }
 }

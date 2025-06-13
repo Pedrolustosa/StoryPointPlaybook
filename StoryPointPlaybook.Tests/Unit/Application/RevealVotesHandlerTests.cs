@@ -13,10 +13,11 @@ public class RevealVotesHandlerTests
 {
     private readonly Mock<IStoryRepository> _storyRepoMock = new();
     private readonly Mock<IGameHubNotifier> _notifierMock = new();
+    private readonly Mock<IVoteRepository> _voteRepositoryMock = new();
     private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly RevealVotesHandler _handler;
 
-    public RevealVotesHandlerTests() => _handler = new RevealVotesHandler(_storyRepoMock.Object, _notifierMock.Object, _uowMock.Object);
+    public RevealVotesHandlerTests() => _handler = new RevealVotesHandler(_storyRepoMock.Object, _voteRepositoryMock.Object, _notifierMock.Object, _uowMock.Object);
 
     [Fact]
     public async Task Handle_StoryNotFound_Throws()

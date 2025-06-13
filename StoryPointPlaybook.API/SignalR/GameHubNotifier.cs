@@ -36,4 +36,16 @@ public class GameHubNotifier(IHubContext<GameHub> hub) : IGameHubNotifier
     {
         await _hub.Clients.Group(roomCode).SendAsync("CurrentStoryChanged", storyDto);
     }
+
+    public async Task NotifyVotesRevealedWithResults(Guid roomId, IEnumerable<VoteResultDto> votes)
+    {
+        await _hub.Clients.Group(roomId.ToString())
+            .SendAsync("VotesRevealedWithResults", votes);
+    }
+
+    public async Task NotifyVotingStatusUpdated(Guid roomId, List<VotingStatusDto> statusList)
+    {
+        await _hub.Clients.Group(roomId.ToString())
+            .SendAsync("VotingStatusUpdated", statusList);
+    }
 }

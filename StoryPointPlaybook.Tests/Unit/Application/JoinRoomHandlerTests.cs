@@ -3,24 +3,25 @@ using FluentAssertions;
 using StoryPointPlaybook.Domain.Enums;
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Domain.Interfaces;
+using StoryPointPlaybook.Domain.Exceptions;
 using StoryPointPlaybook.Application.CQRS.Handlers;
+using StoryPointPlaybook.Application.CQRS.Commands;
 using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 
 namespace StoryPointPlaybook.Tests.Unit.Application;
 
 public class JoinRoomHandlerTests
 {
-    private readonly Mock<IRoomRepository> _roomRepoMock;
-    private readonly Mock<IUserRepository> _userRepoMock;
-    private readonly Mock<IUnitOfWork> _uowMock;
+    private readonly Mock<IUnitOfWork> _uowMock = new();
+    private readonly Mock<IRoomRepository> _roomRepoMock = new();
+    private readonly Mock<IUserRepository> _userRepoMock = new();
     private readonly JoinRoomHandler _handler;
 
     public JoinRoomHandlerTests()
     {
-        _roomRepoMock = new Mock<IRoomRepository>();
-        _userRepoMock = new Mock<IUserRepository>();
-        _uowMock = new Mock<IUnitOfWork>();
-        _handler = new JoinRoomHandler(_roomRepoMock.Object, _userRepoMock.Object, _uowMock.Object);
+        _uowMock.Setup(u => u.Rooms).Returns(_roomRepoMock.Object);
+        _uowMock.Setup(u => u.Users).Returns(_userRepoMock.Object);
+        _handler = new JoinRoomHandler(_uowMock.Object);
     }
 
     [Fact]
@@ -71,7 +72,6 @@ public class JoinRoomHandlerTests
         result.Role.Should().Be("Member");
         result.RoomId.Should().Be(room.Id);
         _userRepoMock.Verify(r => r.AddAsync(It.IsAny<User>()), Times.Once);
-        _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(default), Times.Once);
     }
 }
-

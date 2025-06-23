@@ -10,10 +10,15 @@ namespace StoryPointPlaybook.Tests.Unit.Application;
 
 public class GetChatHistoryHandlerTests
 {
+    private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly Mock<IChatMessageRepository> _repoMock = new();
     private readonly GetChatHistoryHandler _handler;
 
-    public GetChatHistoryHandlerTests() => _handler = new GetChatHistoryHandler(_repoMock.Object);
+    public GetChatHistoryHandlerTests()
+    {
+        _uowMock.Setup(u => u.ChatMessages).Returns(_repoMock.Object);
+        _handler = new GetChatHistoryHandler(_uowMock.Object);
+    }
 
     [Fact]
     public async Task Handle_ReturnsMappedMessages()

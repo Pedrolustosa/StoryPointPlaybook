@@ -4,7 +4,6 @@ using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Application.Events;
 using StoryPointPlaybook.Application.Interfaces;
 using StoryPointPlaybook.Domain.Entities;
-using StoryPointPlaybook.Domain.Exceptions;
 using StoryPointPlaybook.Domain.Interfaces;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
@@ -59,11 +58,12 @@ public class SubmitVoteHandler(
         // Notificar que o usuário votou
         await _gameHubNotifier.NotifyUserVoted(story.RoomId, request.UserId);
 
-        // Verificar se todos os participantes da room votaram
+        // Verificar se todos os participantes da room votaram (excluindo POs)
         var roomParticipants = await _unitOfWork.Users.GetByRoomIdAsync(story.RoomId);
+        var voters = roomParticipants.Where(p => !string.Equals(p.Role, "PO", StringComparison.OrdinalIgnoreCase)).ToList();
         var storyVotes = await _unitOfWork.Votes.GetByStoryIdAsync(request.StoryId);
 
-        var allVoted = roomParticipants.All(participant =>
+        var allVoted = voters.All(participant =>
             storyVotes.Any(vote => vote.UserId == participant.Id));
 
         // Se todos votaram e auto-reveal está ativado, revelar os votos
@@ -76,16 +76,16 @@ public class SubmitVoteHandler(
         }
 
         // Publicar evento de domínio
-        await _publisher.Publish(new VoteSubmittedEvent(request.StoryId, request.UserId, request.Value), cancellationToken);
+        await _publisher.Publish(new VoteSubmittedEvent(request.StoryId, request.UserId, story.VotesRevealed), cancellationToken);
 
-        // Obter status de votação atualizado
-        var votingStatusList = roomParticipants.Select(participant =>
+        // Obter status de votação atualizado (apenas para votantes, excluindo POs)
+        var votingStatusList = voters.Select(participant =>
         {
             var hasVoted = storyVotes.Any(vote => vote.UserId == participant.Id);
             return new VotingStatusDto
             {
                 UserId = participant.Id,
-                UserName = participant.Name,
+                DisplayName = participant.Name,
                 HasVoted = hasVoted,
                 VoteValue = hasVoted && story.VotesRevealed
                     ? storyVotes.First(v => v.UserId == participant.Id).Value

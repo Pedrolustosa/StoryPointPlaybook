@@ -11,11 +11,15 @@ namespace StoryPointPlaybook.Tests.Unit.Application;
 
 public class CreateRoomHandlerTests
 {
-    private readonly Mock<IRoomRepository> _roomRepoMock = new();
     private readonly Mock<IUnitOfWork> _uowMock = new();
+    private readonly Mock<IRoomRepository> _roomRepoMock = new();
     private readonly CreateRoomHandler _handler;
 
-    public CreateRoomHandlerTests() => _handler = new CreateRoomHandler(_roomRepoMock.Object, _uowMock.Object);
+    public CreateRoomHandlerTests()
+    {
+        _uowMock.Setup(u => u.Rooms).Returns(_roomRepoMock.Object);
+        _handler = new CreateRoomHandler(_uowMock.Object);
+    }
 
     [Fact]
     public async Task Handle_CreatesRoomAndReturnsDto()
@@ -30,6 +34,6 @@ public class CreateRoomHandlerTests
         result.AutoReveal.Should().BeTrue();
         result.Participants.Should().HaveCount(1);
         _roomRepoMock.Verify(r => r.AddAsync(It.IsAny<Room>()), Times.Once);
-        _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(default), Times.Once);
     }
 }

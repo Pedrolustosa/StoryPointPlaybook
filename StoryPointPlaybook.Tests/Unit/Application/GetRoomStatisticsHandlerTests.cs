@@ -10,10 +10,15 @@ namespace StoryPointPlaybook.Tests.Unit.Application;
 
 public class GetRoomStatisticsHandlerTests
 {
+    private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly Mock<IRoomRepository> _roomRepoMock = new();
     private readonly GetRoomStatisticsHandler _handler;
 
-    public GetRoomStatisticsHandlerTests() => _handler = new GetRoomStatisticsHandler(_roomRepoMock.Object);
+    public GetRoomStatisticsHandlerTests()
+    {
+        _uowMock.Setup(u => u.Rooms).Returns(_roomRepoMock.Object);
+        _handler = new GetRoomStatisticsHandler(_uowMock.Object);
+    }
 
     [Fact]
     public async Task Handle_RoomNotFound_Throws()

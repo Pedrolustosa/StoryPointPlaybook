@@ -10,10 +10,15 @@ namespace StoryPointPlaybook.Tests.Unit.Application;
 
 public class GetRoomParticipantsHandlerTests
 {
+    private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly Mock<IUserRepository> _userRepoMock = new();
     private readonly GetRoomParticipantsHandler _handler;
 
-    public GetRoomParticipantsHandlerTests() => _handler = new GetRoomParticipantsHandler(_userRepoMock.Object);
+    public GetRoomParticipantsHandlerTests()
+    {
+        _uowMock.Setup(u => u.Users).Returns(_userRepoMock.Object);
+        _handler = new GetRoomParticipantsHandler(_uowMock.Object);
+    }
 
     [Fact]
     public async Task Handle_ReturnsUserResponses()

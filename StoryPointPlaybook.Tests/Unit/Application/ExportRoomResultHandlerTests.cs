@@ -10,10 +10,15 @@ namespace StoryPointPlaybook.Tests.Unit.Application;
 
 public class ExportRoomResultHandlerTests
 {
+    private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly Mock<IRoomRepository> _roomRepoMock = new();
     private readonly ExportRoomResultHandler _handler;
 
-    public ExportRoomResultHandlerTests() => _handler = new ExportRoomResultHandler(_roomRepoMock.Object);
+    public ExportRoomResultHandlerTests()
+    {
+        _uowMock.Setup(u => u.Rooms).Returns(_roomRepoMock.Object);
+        _handler = new ExportRoomResultHandler(_uowMock.Object);
+    }
 
     [Fact]
     public async Task Handle_RoomNotFound_Throws()

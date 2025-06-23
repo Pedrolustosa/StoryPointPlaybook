@@ -11,13 +11,16 @@ namespace StoryPointPlaybook.Tests.Unit.Application;
 
 public class RevealVotesHandlerTests
 {
+    private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly Mock<IStoryRepository> _storyRepoMock = new();
     private readonly Mock<IGameHubNotifier> _notifierMock = new();
-    private readonly Mock<IVoteRepository> _voteRepositoryMock = new();
-    private readonly Mock<IUnitOfWork> _uowMock = new();
     private readonly RevealVotesHandler _handler;
 
-    public RevealVotesHandlerTests() => _handler = new RevealVotesHandler(_storyRepoMock.Object, _voteRepositoryMock.Object, _notifierMock.Object, _uowMock.Object);
+    public RevealVotesHandlerTests()
+    {
+        _uowMock.Setup(u => u.Stories).Returns(_storyRepoMock.Object);
+        _handler = new RevealVotesHandler(_notifierMock.Object, _uowMock.Object);
+    }
 
     [Fact]
     public async Task Handle_StoryNotFound_Throws()
@@ -40,6 +43,6 @@ public class RevealVotesHandlerTests
         story.VotesRevealed.Should().BeTrue();
         _storyRepoMock.Verify(r => r.UpdateAsync(story), Times.Once);
         _notifierMock.Verify(n => n.NotifyVotesRevealed(story.RoomId), Times.Once);
-        _uowMock.Verify(u => u.SaveChangesAsync(), Times.Once);
+        _uowMock.Verify(u => u.SaveChangesAsync(default), Times.Once);
     }
 }

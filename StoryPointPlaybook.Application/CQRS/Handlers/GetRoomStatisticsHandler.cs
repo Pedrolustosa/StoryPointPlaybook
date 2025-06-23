@@ -1,17 +1,17 @@
-﻿using MediatR;
+using MediatR;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
 using StoryPointPlaybook.Application.CQRS.Queries;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class GetRoomStatisticsHandler(IRoomRepository roomRepo) : IRequestHandler<GetRoomStatisticsQuery, RoomStatisticsDto>
+public class GetRoomStatisticsHandler(IUnitOfWork unitOfWork) : IRequestHandler<GetRoomStatisticsQuery, RoomStatisticsDto>
 {
-    private readonly IRoomRepository _roomRepo = roomRepo;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<RoomStatisticsDto> Handle(GetRoomStatisticsQuery request, CancellationToken cancellationToken)
     {
-        var room = await _roomRepo.GetByIdAsync(request.RoomId)??throw new InvalidOperationException("Sala não encontrada.");
+        var room = await _unitOfWork.Rooms.GetByIdAsync(request.RoomId) ?? throw new InvalidOperationException("Sala não encontrada.");
         var stories = room.Stories;
         var totalVotes = stories.Sum(s => s.Votes.Count);
         var totalStories = stories.Count;

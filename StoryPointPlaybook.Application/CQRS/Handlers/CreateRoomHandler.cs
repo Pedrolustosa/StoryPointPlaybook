@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using StoryPointPlaybook.Domain.Entities;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
@@ -6,9 +6,8 @@ using StoryPointPlaybook.Application.CQRS.Rooms.Commands;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class CreateRoomHandler(IRoomRepository roomRepo, IUnitOfWork unitOfWork) : IRequestHandler<CreateRoomCommand, RoomResponse>
+public class CreateRoomHandler(IUnitOfWork unitOfWork) : IRequestHandler<CreateRoomCommand, RoomResponse>
 {
-    private readonly IRoomRepository _roomRepo = roomRepo;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<RoomResponse> Handle(CreateRoomCommand request, CancellationToken cancellationToken)
@@ -28,8 +27,8 @@ public class CreateRoomHandler(IRoomRepository roomRepo, IUnitOfWork unitOfWork)
 
         room.Participants.Add(user);
 
-        await _roomRepo.AddAsync(room);
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.Rooms.AddAsync(room);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new RoomResponse
         {
@@ -56,6 +55,3 @@ public class CreateRoomHandler(IRoomRepository roomRepo, IUnitOfWork unitOfWork)
         };
     }
 }
-
-
-

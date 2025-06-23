@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using StoryPointPlaybook.Application.CQRS.Commands;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Application.Events;
@@ -10,69 +10,92 @@ using StoryPointPlaybook.Domain.Interfaces;
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
 public class SubmitVoteHandler(
-    IStoryRepository storyRepo,
-    IUserRepository userRepo,
-    IVoteRepository voteRepo,
     IUnitOfWork unitOfWork,
-    IGameHubNotifier notifier,
-    IMediator mediator) : IRequestHandler<SubmitVoteCommand>
+    IGameHubNotifier gameHubNotifier,
+    IPublisher publisher) : IRequestHandler<SubmitVoteCommand, bool>
 {
-    private readonly IStoryRepository _storyRepo = storyRepo;
-    private readonly IUserRepository _userRepo = userRepo;
-    private readonly IVoteRepository _voteRepo = voteRepo;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IGameHubNotifier _notifier = notifier;
-    private readonly IMediator _mediator = mediator;
+    private readonly IGameHubNotifier _gameHubNotifier = gameHubNotifier;
+    private readonly IPublisher _publisher = publisher;
 
-    public async Task Handle(SubmitVoteCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(SubmitVoteCommand request, CancellationToken cancellationToken)
     {
-        var story = await _storyRepo.GetByIdWithRoomAsync(request.StoryId)
-            ?? throw new StoryNotFoundException();
+        // Buscar a story com a room para validação
+        var story = await _unitOfWork.Stories.GetByIdWithRoomAsync(request.StoryId);
+        if (story == null)
+            return false;
 
-        var user = await _userRepo.GetByIdAsync(request.UserId)
-            ?? throw new UserNotFoundException();
+        // Buscar o usuário
+        var user = await _unitOfWork.Users.GetByIdAsync(request.UserId);
+        if (user == null)
+            return false;
 
-        var existingVote = story.Votes.FirstOrDefault(v => v.UserId == user.Id);
+        // Verificar se o usuário pertence à mesma room da story
+        if (user.RoomId != story.RoomId)
+            return false;
+
+        // Verificar se já existe um voto para este usuário e story
+        var existingVote = await _unitOfWork.Votes.GetByUserAndStoryAsync(request.UserId, request.StoryId);
+
         if (existingVote != null)
         {
+            // Atualizar voto existente
             existingVote.SetValue(request.Value);
-            await _voteRepo.UpdateAsync(existingVote);
         }
         else
         {
-            var vote = new Vote(request.StoryId, user.Id, request.Value);
-            await _voteRepo.AddAsync(vote);
+            // Criar novo voto
+            var newVote = new Vote(
+                storyId: request.StoryId,
+                userId: request.UserId,
+                value: request.Value
+            );
+
+            await _unitOfWork.Votes.AddAsync(newVote);
         }
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var voters = story.Room.Participants
-            .Where(p => !string.Equals(p.Role, "PO", StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        // Notificar que o usuário votou
+        await _gameHubNotifier.NotifyUserVoted(story.RoomId, request.UserId);
 
-        var totalVotes = story.Votes
-            .Count(v => !string.IsNullOrWhiteSpace(v.Value) &&
-                        voters.Any(p => p.Id == v.UserId));
+        // Verificar se todos os participantes da room votaram
+        var roomParticipants = await _unitOfWork.Users.GetByRoomIdAsync(story.RoomId);
+        var storyVotes = await _unitOfWork.Votes.GetByStoryIdAsync(request.StoryId);
 
-        var votesRevealed = false;
+        var allVoted = roomParticipants.All(participant =>
+            storyVotes.Any(vote => vote.UserId == participant.Id));
 
-        if (story.Room.AutoReveal && totalVotes == voters.Count)
+        // Se todos votaram e auto-reveal está ativado, revelar os votos
+        if (allVoted && story.Room.AutoReveal)
         {
             story.RevealVotes();
-            await _storyRepo.UpdateAsync(story);
-            await _unitOfWork.SaveChangesAsync();
-            votesRevealed = true;
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await _gameHubNotifier.NotifyVotesRevealed(story.RoomId);
         }
 
-        var votingStatus = voters.Select(p => new VotingStatusDto
+        // Publicar evento de domínio
+        await _publisher.Publish(new VoteSubmittedEvent(request.StoryId, request.UserId, request.Value), cancellationToken);
+
+        // Obter status de votação atualizado
+        var votingStatusList = roomParticipants.Select(participant =>
         {
-            UserId = p.Id,
-            DisplayName = p.Name,
-            HasVoted = story.Votes.Any(v => v.UserId == p.Id && !string.IsNullOrWhiteSpace(v.Value))
+            var hasVoted = storyVotes.Any(vote => vote.UserId == participant.Id);
+            return new VotingStatusDto
+            {
+                UserId = participant.Id,
+                UserName = participant.Name,
+                HasVoted = hasVoted,
+                VoteValue = hasVoted && story.VotesRevealed
+                    ? storyVotes.First(v => v.UserId == participant.Id).Value
+                    : null
+            };
         }).ToList();
 
-        await _notifier.NotifyVotingStatusUpdated(story.Room.Id, votingStatus);
+        // Notificar status de votação atualizado
+        await _gameHubNotifier.NotifyVotingStatusUpdated(story.RoomId, votingStatusList);
 
-        await _mediator.Publish(new VoteSubmittedEvent(story.Room.Id, user.Id, votesRevealed), cancellationToken);
+        return true;
     }
 }

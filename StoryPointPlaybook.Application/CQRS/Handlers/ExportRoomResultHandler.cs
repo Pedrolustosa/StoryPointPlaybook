@@ -1,17 +1,17 @@
-﻿using MediatR;
+using MediatR;
 using StoryPointPlaybook.Application.CQRS.Queries;
 using StoryPointPlaybook.Application.DTOs;
 using StoryPointPlaybook.Domain.Interfaces;
 
 namespace StoryPointPlaybook.Application.CQRS.Handlers;
 
-public class ExportRoomResultHandler(IRoomRepository roomRepo) : IRequestHandler<ExportRoomResultQuery, ExportResultDto>
+public class ExportRoomResultHandler(IUnitOfWork unitOfWork) : IRequestHandler<ExportRoomResultQuery, ExportResultDto>
 {
-    private readonly IRoomRepository _roomRepo = roomRepo;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<ExportResultDto> Handle(ExportRoomResultQuery request, CancellationToken cancellationToken)
     {
-        var room = await _roomRepo.GetByIdAsync(request.RoomId)??throw new InvalidOperationException("Sala não encontrada.");
+        var room = await _unitOfWork.Rooms.GetByIdAsync(request.RoomId) ?? throw new InvalidOperationException("Sala não encontrada.");
         var stories = room.Stories.Select(story =>
         {
             var voteValues = story.Votes.Select(v => v.Value).ToList();
@@ -24,11 +24,11 @@ public class ExportRoomResultHandler(IRoomRepository roomRepo) : IRequestHandler
             {
                 Title = story.Title,
                 Description = story.Description,
-                Votes = [.. story.Votes.Select(v => new VoteEntryDto
+                Votes = story.Votes.Select(v => new VoteEntryDto
                 {
                     User = v.User.Name,
                     Value = v.Value
-                })],
+                }).ToList(),
                 Average = avg
             };
         }).ToList();
